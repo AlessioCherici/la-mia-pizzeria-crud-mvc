@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyPizzeriaModel;
 
@@ -11,9 +12,11 @@ using MyPizzeriaModel;
 namespace MypizzeriaModel.Migrations
 {
     [DbContext(typeof(PizzaContext))]
-    partial class PizzaContextModelSnapshot : ModelSnapshot
+    [Migration("20230117155845_AggiuntaTabellaPonte")]
+    partial class AggiuntaTabellaPonte
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,23 +24,6 @@ namespace MypizzeriaModel.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("MyPizzeriaModel.Models.Categoria", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("NomeCategoria")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Categorie");
-                });
 
             modelBuilder.Entity("MyPizzeriaModel.Models.Pizza", b =>
                 {
@@ -73,16 +59,33 @@ namespace MypizzeriaModel.Migrations
                     b.ToTable("Pizzas");
                 });
 
+            modelBuilder.Entity("My_pizzeria_Model.Models.Categoria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("NomeCategoria")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categoria");
+                });
+
             modelBuilder.Entity("MyPizzeriaModel.Models.Pizza", b =>
                 {
-                    b.HasOne("MyPizzeriaModel.Models.Categoria", "Categoria")
+                    b.HasOne("My_pizzeria_Model.Models.Categoria", "Categoria")
                         .WithMany("Pizzas")
                         .HasForeignKey("CategoriaId");
 
                     b.Navigation("Categoria");
                 });
 
-            modelBuilder.Entity("MyPizzeriaModel.Models.Categoria", b =>
+            modelBuilder.Entity("My_pizzeria_Model.Models.Categoria", b =>
                 {
                     b.Navigation("Pizzas");
                 });

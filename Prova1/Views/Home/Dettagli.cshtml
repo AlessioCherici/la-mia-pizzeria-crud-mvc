@@ -11,6 +11,7 @@
             <button type="button" class="btn btn-info py-1 m-2 btn-lg px-1">@Model.Prezzo</button>
             <a href="@Url.Action("Modifica","Home",new{id=Model.Id})" class="btn btn-warning py-1 m-2 btn-lg px-1">Modifica</a>
             <a href="@Url.Action("DeletePizza","Home",new{id=Model.Id})" class="btn btn-danger py-1 m-2 btn-lg px-1">Elimina</a>
+            <p>@Model.Categoria.NomeCategoria</p>
             <p>@Model.Descrizione</p>
         </div>
     </div>

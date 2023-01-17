@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.SqlServer.Server;
 using MyPizzeriaModel.Models;
 using System.Diagnostics;
@@ -25,13 +27,13 @@ namespace MyPizzeriaModel.Controllers
         public IActionResult Dettagli(int id)
             {
             using PizzaContext db = new PizzaContext();
-            Pizza pizza = (from p in db.Pizzas where p.Id == id select p).FirstOrDefault();
+            Pizza pizza = (from p in db.Pizzas where p.Id == id select p).Include(pizza => pizza.Categoria).FirstOrDefault();
             if (pizza == null)
                 {
                 return NotFound();
                 }
             else
-                {
+                {               
                 return View("Dettagli",pizza);
                 }
             }
@@ -46,44 +48,54 @@ namespace MyPizzeriaModel.Controllers
                 }
             else
                 {
-                return View("Modifica", pizza);
+                VisualizzaPizze PizzaDaModificare = new VisualizzaPizze();
+                PizzaDaModificare.PizzaSelezionata = pizza;
+                List<Categoria> ListaScelta = db.Categorie.ToList();
+                PizzaDaModificare.ListaCategorie = ListaScelta;
+                return View("Modifica", PizzaDaModificare);
                 }
             }
             
     [HttpGet]
         public IActionResult FormAddPizza()
             {
-            return View("FormPizza"); 
+            using PizzaContext db = new PizzaContext();
+            VisualizzaPizze PizzaDaModificare = new VisualizzaPizze();
+            PizzaDaModificare.PizzaSelezionata = new Pizza();
+            List<Categoria> ListaScelta = db.Categorie.ToList();
+            PizzaDaModificare.ListaCategorie = ListaScelta;
+            return View("FormPizza", PizzaDaModificare);     
             }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult FormAddPizza(Pizza formData) 
+        public IActionResult FormAddPizza(VisualizzaPizze formData) 
             {
             if (!ModelState.IsValid) 
                 {
                 return View("FormPizza");
                 }
             using PizzaContext db = new PizzaContext();
-            db.Pizzas.Add(formData);
+            db.Pizzas.Add(formData.PizzaSelezionata);  
             db.SaveChanges();
             return RedirectToAction("Index");
             }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult FormEditPizza(Pizza formData)
+        public IActionResult FormEditPizza(VisualizzaPizze formData)
             {
             if (!ModelState.IsValid)
                 {
                 return View("Modifica");
                 }
             using PizzaContext db = new PizzaContext();
-            Pizza pizza = (from p in db.Pizzas where p.Id == formData.Id select p).FirstOrDefault();
-            pizza.Nome = formData.Nome;
-            pizza.Prezzo= formData.Prezzo;
-            pizza.Descrizione = formData.Descrizione;
-            pizza.Immagine = formData.Immagine;
+            Pizza pizza = (from p in db.Pizzas where p.Id == formData.PizzaSelezionata.Id select p).FirstOrDefault();
+            pizza.Nome = formData.PizzaSelezionata.Nome;
+            pizza.Prezzo= formData.PizzaSelezionata.Prezzo;
+            pizza.Descrizione = formData.PizzaSelezionata.Descrizione;
+            pizza.Immagine = formData.PizzaSelezionata.Immagine;
+            pizza.CategoriaId = formData.PizzaSelezionata.CategoriaId;
             db.SaveChanges();
             return RedirectToAction("Index");
             }
@@ -97,7 +109,7 @@ namespace MyPizzeriaModel.Controllers
             return RedirectToAction("Index");
             }
 
-
+               
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
